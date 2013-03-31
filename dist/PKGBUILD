@@ -1,0 +1,49 @@
+# Contributor: Christian-Krippendorf <Coding@Christian-Krippendorf.de>
+pkgname=libamz-git
+pkgver=20130331
+pkgrel=1
+pkgdesc="libamz - Library for decoding Amazon amz files."
+arch=("i686" "x86_64")
+url="http://cerebrosus.github.com/qlamz"
+license=('GPLv3')
+depends=('qt4' 'openssl')
+makedepends=('openssl' 'pkgconfig' 'git' 'automoc4' 'cmake')
+conflicts=()
+
+_gitroot="git://github.com/CerebrosuS/libamz.git"
+_gitname="libamz"
+
+source=()
+md5sums=()
+
+build() {
+    cd ${srcdir}
+    msg "Connecting to GIT server...."
+
+    if [ -d ${_gitname}/.git ] ; then
+        cd ${_gitname}
+
+        git pull origin
+        msg "The local files are updated."
+    else
+        git clone ${_gitroot} ${_gitname}
+    fi
+
+    msg "GIT checkout done or server timeout"
+    msg "Starting make..."
+
+    mkdir -p "$srcdir/build"
+    cd "$srcdir/build"
+
+    msg "Starting make..."
+
+    cmake ${srcdir}/${_gitname} -DCMAKE_INSTALL_PREFIX=/usr
+
+    make
+}
+
+package(){
+    cd "$srcdir/build"
+
+    make DESTDIR=${pkgdir} install
+}
